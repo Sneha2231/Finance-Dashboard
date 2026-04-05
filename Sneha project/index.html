@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FinFlow — Finance Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">◈</div>
+    <span class="logo-text">FinFlow</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="nav-item active" data-section="overview">
+      <i data-lucide="layout-dashboard"></i><span>Overview</span>
+    </a>
+    <a class="nav-item" data-section="transactions">
+      <i data-lucide="arrow-left-right"></i><span>Transactions</span>
+    </a>
+    <a class="nav-item" data-section="insights">
+      <i data-lucide="bar-chart-2"></i><span>Insights</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-role-box">
+    <span class="role-label-text">Switch Role</span>
+    <div class="select-wrapper">
+      <select id="roleSelect" class="role-select">
+        <option value="viewer">👁 Viewer</option>
+        <option value="admin">⚡ Admin</option>
+      </select>
+      <i data-lucide="chevron-down" class="select-chevron"></i>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="avatar">SS</div>
+    <div class="user-meta">
+      <span class="user-name">Sneha Singh</span>
+      <span class="user-badge" id="roleBadge">Viewer</span>
+    </div>
+  </div>
+</aside>
+
+<header class="mobile-header">
+  <button class="hamburger" id="hamburger"><i data-lucide="menu"></i></button>
+  <span class="m-logo">◈ FinFlow</span>
+  <select id="mobileRole" class="m-role-select">
+    <option value="viewer">👁 Viewer</option>
+    <option value="admin">⚡ Admin</option>
+  </select>
+</header>
+<div class="overlay" id="overlay"></div>
+
+<main class="main">
+
+  <section id="overview" class="page active">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Good Morning, Sneha Singh <span class="sparkle">✦</span></h1>
+        <p class="page-sub">Here's what's happening with your finances today.</p>
+      </div>
+      <button class="btn-primary admin-only hidden" id="addBtn1">
+        <i data-lucide="plus"></i> Add Transaction
+      </button>
+    </div>
+
+    <div class="cards-grid">
+      <div class="sum-card balance-card">
+        <div class="sum-card-top">
+          <span class="sum-label">Total Balance</span>
+          <div class="sum-icon"><i data-lucide="wallet"></i></div>
+        </div>
+        <div class="sum-value" id="totalBalance">₹0</div>
+        <div class="sum-trend up"><i data-lucide="trending-up"></i> +2.4% this month</div>
+        <div class="card-shine"></div>
+      </div>
+      <div class="sum-card income-card">
+        <div class="sum-card-top">
+          <span class="sum-label">Total Income</span>
+          <div class="sum-icon"><i data-lucide="arrow-up-circle"></i></div>
+        </div>
+        <div class="sum-value" id="totalIncome">₹0</div>
+        <div class="sum-trend up"><i data-lucide="arrow-up-right"></i> This period</div>
+        <div class="card-shine"></div>
+      </div>
+      <div class="sum-card expense-card">
+        <div class="sum-card-top">
+          <span class="sum-label">Total Expenses</span>
+          <div class="sum-icon"><i data-lucide="arrow-down-circle"></i></div>
+        </div>
+        <div class="sum-value" id="totalExpenses">₹0</div>
+        <div class="sum-trend down"><i data-lucide="arrow-down-right"></i> This period</div>
+        <div class="card-shine"></div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card wide">
+        <div class="chart-card-head">
+          <h3>Monthly Cash Flow</h3>
+          <span class="pill">6 months</span>
+        </div>
+        <canvas id="lineChart" height="200"></canvas>
+      </div>
+      <div class="chart-card narrow">
+        <div class="chart-card-head">
+          <h3>Expense Breakdown</h3>
+          <span class="pill">By Category</span>
+        </div>
+        <div class="pie-container">
+          <canvas id="pieChart"></canvas>
+        </div>
+        <div id="pieLegend" class="pie-legend"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="transactions" class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Transactions</h1>
+        <p class="page-sub">Complete record of all your financial activity.</p>
+      </div>
+      <button class="btn-primary admin-only hidden" id="addBtn2">
+        <i data-lucide="plus"></i> Add
+      </button>
+    </div>
+
+    <div class="txn-toolbar">
+      <div class="search-box">
+        <i data-lucide="search"></i>
+        <input type="text" id="searchInput" placeholder="Search transactions…" />
+      </div>
+      <div class="filter-group">
+        <button class="flt active" data-f="all">All</button>
+        <button class="flt" data-f="income">Income</button>
+        <button class="flt" data-f="expense">Expense</button>
+      </div>
+    </div>
+
+    <div id="txnList" class="txn-list"></div>
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-glyph">◎</div>
+      <p>No transactions found</p>
+      <span>Change filters or add a new transaction.</span>
+    </div>
+  </section>
+
+  <section id="insights" class="page">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Insights</h1>
+        <p class="page-sub">Smart analysis of your spending behavior.</p>
+      </div>
+    </div>
+
+    <div class="insight-kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon flame"><i data-lucide="flame"></i></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Top Spending</span>
+          <span class="kpi-val" id="topCat">—</span>
+          <span class="kpi-sub" id="topCatAmt"></span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon piggy"><i data-lucide="piggy-bank"></i></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Savings Rate</span>
+          <span class="kpi-val" id="savingsRate">0%</span>
+          <span class="kpi-sub">of total income saved</span>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon receipt"><i data-lucide="receipt"></i></div>
+        <div class="kpi-body">
+          <span class="kpi-label">Transactions</span>
+          <span class="kpi-val" id="txnCount">0</span>
+          <span class="kpi-sub">total recorded</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="comparison-card">
+      <h3>Monthly Comparison</h3>
+      <div id="compBars" class="comp-bars"></div>
+    </div>
+
+    <div id="insightBubbles" class="bubbles-wrap"></div>
+  </section>
+
+</main>
+
+<div class="modal-bg hidden" id="modalBg">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <h3>New Transaction</h3>
+      <button class="modal-x" id="modalClose"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-form">
+      <div class="fg">
+        <label>Description</label>
+        <input id="fDesc" type="text" placeholder="e.g. Monthly Salary" class="fi" />
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label>Amount (₹)</label>
+          <input id="fAmt" type="number" placeholder="0" class="fi" min="1" />
+        </div>
+        <div class="fg">
+          <label>Type</label>
+          <select id="fType" class="fi">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label>Category</label>
+          <select id="fCat" class="fi">
+            <option>Salary</option>
+            <option>Food</option>
+            <option>Transport</option>
+            <option>Shopping</option>
+            <option>Bills</option>
+            <option>Entertainment</option>
+            <option>Health</option>
+            <option>Investment</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Date</label>
+          <input id="fDate" type="date" class="fi" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" id="modalCancel">Cancel</button>
+      <button class="btn-primary" id="txnSubmit">
+        <i data-lucide="check"></i> Save Transaction
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
